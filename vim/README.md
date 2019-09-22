@@ -8,4 +8,4 @@
 
 1. (if pip not installed) sudo apt install python-pip
 2. pip install pexpect
-3. 
+3. python vim-auto-tests.py
