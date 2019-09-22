@@ -2,7 +2,7 @@
 
 ## prerequisites
 
-Python 3.3 or above
+* Python 3.3 or above
 
 # How to run this (for ubuntu 18/19)
 
