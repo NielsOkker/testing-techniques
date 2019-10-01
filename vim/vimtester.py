@@ -2,10 +2,17 @@ import re, pexpect, os
 
 from pyte import ByteStream, Screen
 
+TIMEOUT = pexpect.TIMEOUT
+
 class VimTester(object):
-    def __init__(self, PS1_re, any_PS_re):
+    def __init__(self, PS1_re, any_PS_re, options, filename):
         self.PS1_re = PS1_re #re.compile(PS1_re)
         self.any_PS_re = any_PS_re #re.compile(any_PS_re)
+
+        self._spawn_interpreter('vim ' + filename, options)
+        self.options = options
+
+        self.last_output = []
 
     def _create_terminal(self, options):
         rows, cols = options['geometry']
@@ -27,9 +34,9 @@ class VimTester(object):
         self._create_terminal(options)
 
     def _emulate_ansi_terminal(self, chunks, join=True):
-        #for chunk in chunks:
+        for chunk in chunks:
             #print(chunk)
-        self._stream.feed(chunks)
+            self._stream.feed(chunk)
 
         lines = self._screen.display
         self._screen.reset()
@@ -42,26 +49,28 @@ class VimTester(object):
             lines = (line.rstrip() for line in lines)
 
         return '\n'.join(lines) if join else lines
+    
+    def getScreenContent(self, expectedValue=None):
+        waitingFor = [self.PS1_re, TIMEOUT]
+        timeout = self.options['timeout']
+        if(expectedValue is not None):
+            waitingFor[0] = expectedValue
+        PS_found, Timeout = range(len(waitingFor))
+        what = self.interpreter.expect(waitingFor, timeout=timeout)
 
-options = {}
-options['geometry'] = (25, 100)
-tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'')
-tester._spawn_interpreter('vim tezt', options)
-tester.interpreter.send("i")
-prompt_re = tester.PS1_re
-expect = [prompt_re, pexpect.TIMEOUT]
-i = tester.interpreter.expect(expect)
-output = tester.interpreter.before
-out = tester._emulate_ansi_terminal(output)
-i=0
-for line in out.split('\n'):
-    print(str(i) + line)
-    i=i+1
+        if what == Timeout:
+            msg = "Prompt not found: the code is taking too long to finish or there is a syntax error.\nLast 1000 bytes read:\n%s"
+            msg = msg % ''.join(self.last_output)[-1000:]
+            out = self._get_output(options)
+            raise TimeoutException(msg, out)
+    
+        self.last_output.append(self.interpreter.before)
 
+        out = self._emulate_ansi_terminal(self.last_output)
+        #print (self.last_output)
+        #self._drop_output()
+        return out
 
-#child.send("een stukje tekst om te testen")
-#i = child.expect([pexpect.TIMEOUT, r'.*een stukje tekst om te testen.*'])
-#child.sendcontrol("c")
-#child.sendline(":wq")
-#i = child.expect([r'.*written.*'])
-#print i
+    def _drop_output(self):
+        self.last_output = []
+
