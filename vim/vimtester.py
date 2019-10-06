@@ -51,24 +51,27 @@ class VimTester(object):
         return '\n'.join(lines) if join else lines
     
     def getScreenContent(self, expectedValue=None):
-        waitingFor = [self.PS1_re, TIMEOUT]
+        waitingFor = [self.PS1_re, TIMEOUT, 'E325: ATTENTION']
         timeout = self.options['timeout']
         if(expectedValue is not None):
             waitingFor[0] = expectedValue
-        PS_found, Timeout = range(len(waitingFor))
+        PS_found, Timeout, ALREADY_OPEN = range(len(waitingFor))
         what = self.interpreter.expect(waitingFor, timeout=timeout)
 
+        if what == ALREADY_OPEN:
+            msg = "The Vim file is already openened, remove the swap file\n%s"
+            msg = msg % ''.join(self.last_output)[-1000:]
+            raise Exception(msg)
         if what == Timeout:
             msg = "Prompt not found: the code is taking too long to finish or there is a syntax error.\nLast 1000 bytes read:\n%s"
             msg = msg % ''.join(self.last_output)[-1000:]
-            out = self._get_output(options)
-            raise TimeoutException(msg, out)
+            raise Exception(msg)
     
         self.last_output.append(self.interpreter.before)
 
         out = self._emulate_ansi_terminal(self.last_output)
-        #print (self.last_output)
-        #self._drop_output()
+        print (self.last_output)
+        # self._drop_output()
         return out
 
     def _drop_output(self):
