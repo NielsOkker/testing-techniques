@@ -40,6 +40,7 @@ class VimTester(object):
 
         lines = self._screen.display
         self._screen.reset()
+        
         if str == bytes:
             # Python 2.7 support only: it works on str/bytes only
             # XXX this is a limitation, if the output has a single non-ascii
