@@ -297,20 +297,76 @@ def test11():
         print("Test 11 Succeeded")
     else:
         raise Exception("Test 11 failed: result is not equal to the expected result")
-try:
-    # test1()
-    # test2()
-    # test3()
-    # test4()
-    # test5()
-    # test6()
-    # test7()
-    # test8()
-    # test9()
-    # test10()
-    test11()
 
+def test12():
+    testFileName = 'test-12.txt'
+    tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, tempFolder + testFileName)
     
+    tester.interpreter.send("gg")
+    tester.getScreenContent("1,1")
+
+    tester.interpreter.send("lll")
+    tester.interpreter.send("C")
+    tester.getScreenContent('INSERT')
+
+    tester.interpreter.send('Testing yes 123.')
+    tester.getScreenContent( r'Testing yes 123.')
+
+    tester.interpreter.sendcontrol("c")
+    tester.getScreenContent(None)
+
+    tester.interpreter.sendline(":w")
+    tester.interpreter.sendline(":q")
+
+    res = filecmp.cmp(tempFolder + testFileName, resultFolder + testFileName)
+    
+    if res:
+        print("Test 12 Succeeded")
+    else:
+        raise Exception("Test 12 failed: result is not equal to the expected result")
+
+def test13():
+    testFileName = 'test-13.txt'
+    tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, tempFolder + testFileName)
+    
+    tester.interpreter.send("gg")
+    tester.getScreenContent("1,1")
+
+    tester.interpreter.send("jj")
+    tester.interpreter.send("cc")
+    tester.getScreenContent('INSERT')
+
+    tester.interpreter.send('Some text.')
+    tester.getScreenContent( r'Some text.')
+
+    tester.interpreter.sendcontrol("c")
+    tester.getScreenContent(None)
+
+    tester.interpreter.sendline(":w")
+    tester.interpreter.sendline(":q")
+
+    res = filecmp.cmp(tempFolder + testFileName, resultFolder + testFileName)
+    
+    if res:
+        print("Test 13 Succeeded")
+    else:
+        raise Exception("Test 13 failed: result is not equal to the expected result")
+
+try:
+    test1()
+    test2()
+    test3()
+    test4()
+    test5()
+    test6()
+    test7()
+    test8()
+    test9()
+    test10()
+    test11()
+    test12()
+    test13()
+
 except Exception as identifier:
     print("tests failed")
     traceback.print_exc()
