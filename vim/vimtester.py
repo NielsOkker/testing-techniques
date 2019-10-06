@@ -59,19 +59,16 @@ class VimTester(object):
         what = self.interpreter.expect(waitingFor, timeout=timeout)
 
         if what == ALREADY_OPEN:
-            msg = "The Vim file is already openened, remove the swap file\n%s"
-            msg = msg % ''.join(self.last_output)[-1000:]
+            msg = "The Vim file is already openened, remove the swap file\n"
             raise Exception(msg)
         if what == Timeout:
-            msg = "Prompt not found: the code is taking too long to finish or there is a syntax error.\nLast 1000 bytes read:\n%s"
-            msg = msg % ''.join(self.last_output)[-1000:]
+            msg = "Prompt not found: the code is taking too long to finish or there is a syntax error.\nLast 1000 bytes read:\n"
             raise Exception(msg)
     
         self.last_output.append(self.interpreter.before)
 
         out = self._emulate_ansi_terminal(self.last_output)
-        print (self.last_output)
-        # self._drop_output()
+        # print (self.last_output)
         return out
 
     def _drop_output(self):
