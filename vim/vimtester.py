@@ -29,7 +29,7 @@ class VimTester(object):
 
         self.interpreter = pexpect.spawn(cmd, echo=False, 
                                                 dimensions=(rows,cols),
-                                                env=env)
+                                                env=env, encoding='utf-8')
 
         self._create_terminal(options)
 
@@ -68,9 +68,9 @@ class VimTester(object):
     
         self.last_output.append(self.interpreter.before)
 
-        out = self._emulate_ansi_terminal(self.last_output)
+        #out = self._emulate_ansi_terminal(self.last_output)
         # print (self.last_output)
-        return out
+        return None
 
     def _drop_output(self):
         self.last_output = []
