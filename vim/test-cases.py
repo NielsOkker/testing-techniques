@@ -275,6 +275,28 @@ def test10():
         print("Test 10 Succeeded")
     else:
         raise Exception("Test 10 failed: result is not equal to the expected result")
+
+def test11():
+    testFileName = 'test-11.txt'
+    tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, tempFolder + testFileName)
+    
+    tester.interpreter.send("gg")
+    tester.getScreenContent("1,1")
+    tester.interpreter.send("3S")
+    tester.getScreenContent('INSERT')
+
+    tester.interpreter.sendcontrol("c")
+    tester.getScreenContent(None)
+
+    tester.interpreter.sendline(":w")
+    tester.interpreter.sendline(":q")
+
+    res = filecmp.cmp(tempFolder + testFileName, resultFolder + testFileName)
+    
+    if res:
+        print("Test 11 Succeeded")
+    else:
+        raise Exception("Test 11 failed: result is not equal to the expected result")
 try:
     # test1()
     # test2()
@@ -285,7 +307,8 @@ try:
     # test7()
     # test8()
     # test9()
-    test10()
+    # test10()
+    test11()
 
     
 except Exception as identifier:
