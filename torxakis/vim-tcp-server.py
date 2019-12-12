@@ -1,33 +1,93 @@
 import socket
 import sys
+import os 
+from vimtester import VimTester, TIMEOUT
 
+# TCP server setup
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_address = ('localhost', 10000)
 
+# Vim tester setup
+options = {}
+options['geometry'] = (25, 100)
+options['timeout'] = 2
+
+testFileName = './tempfiles/test.txt'
+tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, testFileName)
+
+
 print('starting up on %s port %s' % server_address)
-
 sock.bind(server_address)
-
 sock.listen(1)
 
-while True:
-    # Wait for a connection
-    print('waiting for a connection')
-    connection, client_address = sock.accept()
-    try:
-        print('connection from', client_address)
+def listen_for_connection():
+    while True:
+        # Wait for a connection
+        print('waiting for a connection')
+        connection, client_address = sock.accept()
+        try:
+            print('connection from', client_address)
 
-        # Receive the data in small chunks and retransmit it
-        while True:
-            data = connection.recv(40)
-            print('received "%s"' % bytes.decode(data))
-            if data:
-                print('sending data back to the client')
-                connection.sendall(data)
-            else:
-                print('no more data from', client_address)
-                break
-            
-    finally:
-        # Clean up the connection
-        connection.close()
+            # Receive the data in small chunks and retransmit it
+            while True:
+                data = connection.recv(100)
+                decoded_data = bytes.decode(data)
+                print('received "%s"' % bytes.decode(data))
+                if data:
+                    handle_currentElement(decoded_data, tester)
+                    connection.sendall(bytes("handled", 'utf-8'))
+                    break
+                else:
+                    print('no more data from', client_address)
+                    break
+                
+        finally:
+            # Clean up the connection
+            connection.close()
+            shutdown()
+
+
+def handle_currentElement(ce, tester):
+    print("Handle", ce)
+    if ce == "v_Normal":
+        tester.getScreenContent()
+    elif ce == "v_Insert":
+        tester.getScreenContent('INSERT')
+    elif ce == "v_Insertt":
+        tester.getScreenContent('INSERTT')
+    elif ce == "e_Ctrl-C":
+        tester.interpreter.sendcontrol("c")
+    elif ce == "e_Esc":
+        tester.interpreter.sendcontrol("c")
+    elif ce == "e_i":
+        tester.interpreter.send("i")
+    elif ce == "e_I":
+        tester.interpreter.send("I")
+    elif ce == "e_a":
+        tester.interpreter.send("a")
+    elif ce == "e_A":
+        tester.interpreter.send("A")
+    elif ce == "e_o":
+        tester.interpreter.send("o")
+    elif ce == "e_O":
+        tester.interpreter.send("O")
+    elif ce == "e_gI":
+        tester.interpreter.send("gI")
+    elif ce == "e_gi":
+        tester.interpreter.send("gi")
+    elif ce == "e_s":        
+        tester.interpreter.send("2s") 
+    elif ce == "e_S":        
+        tester.interpreter.send("3S") 
+    elif ce == "e_cc":
+        tester.interpreter.send("cc")
+    elif ce == "e_C":
+        tester.interpreter.send("C")
+    else:
+        print("Unknown action or state", ce)
+
+def shutdown():
+    tester.interpreter.sendline(":w")
+    tester.interpreter.sendline(":q!")
+
+listen_for_connection()

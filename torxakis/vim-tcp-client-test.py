@@ -11,20 +11,26 @@ print('connecting to %s port %s' % server_address)
 sock.connect(server_address)
 
 try:
-    # Send data
-    message = 'This is the message.  It will be repeated.'
+    # # Send data
+    # message = 'e_i'
+    # print('sending "%s"' % message)
+    # payload = bytes(message, 'utf-8')
+    # sock.sendall(payload)
+
+    # # Look for the response
+    # data = sock.recv(100)
+    # print('received "%s"' % data)
+
+
+    # send second data
+    message = 'v_Insertt'
     print('sending "%s"' % message)
     payload = bytes(message, 'utf-8')
     sock.sendall(payload)
 
     # Look for the response
-    amount_received = 0
-    amount_expected = len(payload)
-    
-    while amount_received < amount_expected:
-        data = sock.recv(16)
-        amount_received += len(data)
-        print('received "%s"' % data)
+    data = sock.recv(100)
+    print('received "%s"' % data)
 
 finally:
     print('closing socket')
