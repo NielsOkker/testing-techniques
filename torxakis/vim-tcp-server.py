@@ -31,16 +31,15 @@ def listen_for_connection():
             # Receive the data in small chunks and retransmit it
             while True:
                 data = connection.recv(100)
+                if not data:
+                    break
                 decoded_data = bytes.decode(data)
-                decoded_data = decoded_data.rstrip()
-                print('received "%s"' % bytes.decode(data))
-                if data:
-                    handle_currentElement(decoded_data, tester)
-                    connection.sendall(bytes("handled", 'utf-8'))
-                    break
-                else:
-                    print('no more data from', client_address)
-                    break
+                decoded_data = decoded_data.strip("\n")
+                print('received "%s"' % decoded_data)
+
+                handle_currentElement(decoded_data, tester)
+                connection.sendall(bytes("handled", 'utf-8'))
+                
                 
         finally:
             # Clean up the connection
