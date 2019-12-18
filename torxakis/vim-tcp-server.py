@@ -12,7 +12,7 @@ options = {}
 options['geometry'] = (25, 100)
 options['timeout'] = 2
 
-testFileName = './tempfiles/test.txt'
+testFileName = './test.txt'
 tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, testFileName)
 
 
@@ -38,8 +38,8 @@ def listen_for_connection():
                 print('received "%s"' % decoded_data)
 
                 handle_currentElement(decoded_data, tester)
-                connection.sendall(bytes("V_Normal\n", 'utf-8'))
-                print('AQ')
+                state = tester.getScreenContent()
+                connection.sendall(bytes(state + "\n", 'utf-8'))
                 
                 
         finally:
@@ -50,13 +50,7 @@ def listen_for_connection():
 
 def handle_currentElement(ce, tester):
     print("Handle", ce)
-    if ce == "V_Normal":
-        tester.getScreenContent()
-    elif ce == "V_Insert":
-        tester.getScreenContent('INSERT')
-    elif ce == "V_Insertt":
-        tester.getScreenContent('INSERTT')
-    elif ce == "E_Ctrl-C":
+    if ce == "E_Ctrl-C":
         tester.interpreter.sendcontrol("c")
     elif ce == "E_Esc":
         tester.interpreter.sendcontrol("c")

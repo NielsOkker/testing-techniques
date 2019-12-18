@@ -9,7 +9,7 @@ class VimTester(object):
         self.PS1_re = PS1_re #re.compile(PS1_re)
         self.any_PS_re = any_PS_re #re.compile(any_PS_re)
 
-        self._spawn_interpreter('vim ' + filename, options)
+        self._spawn_interpreter('vim -n ' + filename, options)
         self.options = options
 
         self.last_output = []
@@ -51,26 +51,25 @@ class VimTester(object):
 
         return '\n'.join(lines) if join else lines
     
-    def getScreenContent(self, expectedValue=None):
-        waitingFor = [self.PS1_re, TIMEOUT, 'E325: ATTENTION']
-        timeout = self.options['timeout']
-        if(expectedValue is not None):
-            waitingFor[0] = expectedValue
-        PS_found, Timeout, ALREADY_OPEN = range(len(waitingFor))
-        what = self.interpreter.expect(waitingFor, timeout=timeout)
-
-        if what == ALREADY_OPEN:
+    def getScreenContent(self):
+        waitingFor = ['INSERT', 'REPLACE', TIMEOUT, 'E325: ATTENTION', pexpect.EOF]
+        Insert, Replace, Timeout, ALREADY_OPEN, EOF = range(len(waitingFor))
+        what = self.interpreter.expect(waitingFor, timeout=0.5)
+        if what == Insert:
+            return "V_Insert"
+        elif what == Replace:
+            return 'V_replace'
+        elif what == ALREADY_OPEN:
             msg = "The Vim file is already openened, remove the swap file\n"
             raise Exception(msg)
-        if what == Timeout:
-            msg = "Prompt not found: the code is taking too long to finish or there is a syntax error.\nLast 1000 bytes read:\n"
-            raise Exception(msg)
-    
-        self.last_output.append(self.interpreter.before)
+        elif what == EOF:
+            return 'EOF'
 
-        #out = self._emulate_ansi_terminal(self.last_output)
-        # print (self.last_output)
-        return None
+        what = self.interpreter.expect([r'(All|Bot|Top|\d+\%)+', TIMEOUT, 'E325: ATTENTION'], timeout=0.5)        
+
+        if what == 0:
+            return 'V_normal'
+        return 'V_Error'
 
     def _drop_output(self):
         self.last_output = []

@@ -23,7 +23,7 @@ try:
 
 
     # send second data
-    message = 'v_Insertt'
+    message = 'E_i'
     print('sending "%s"' % message)
     payload = bytes(message, 'utf-8')
     sock.sendall(payload)
@@ -31,6 +31,26 @@ try:
     # Look for the response
     data = sock.recv(100)
     print('received "%s"' % data)
+
+
+    message = 'E_Esc'
+    print('sending "%s"' % message)
+    payload = bytes(message, 'utf-8')
+    sock.sendall(payload)
+
+    # Look for the response
+    data = sock.recv(100)
+    print('received "%s"' % data)
+
+    message = 'E_i'
+    print('sending "%s"' % message)
+    payload = bytes(message, 'utf-8')
+    sock.sendall(payload)
+
+    # Look for the response
+    data = sock.recv(100)
+    print('received "%s"' % data)
+
 
 finally:
     print('closing socket')
