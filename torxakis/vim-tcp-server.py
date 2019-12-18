@@ -13,9 +13,6 @@ options['geometry'] = (25, 100)
 options['timeout'] = 2
 
 testFileName = './test.txt'
-tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, testFileName)
-
-
 print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(1)
@@ -26,6 +23,7 @@ def listen_for_connection():
         print('waiting for a connection')
         connection, client_address = sock.accept()
         try:
+            tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, testFileName)
             print('connection from', client_address)
 
             # Receive the data in small chunks and retransmit it
@@ -45,7 +43,7 @@ def listen_for_connection():
         finally:
             # Clean up the connection
             connection.close()
-            shutdown()
+            shutdown(tester)
 
 
 def handle_currentElement(ce, tester):
@@ -78,10 +76,13 @@ def handle_currentElement(ce, tester):
         tester.interpreter.send("cc")
     elif ce == "E_C":
         tester.interpreter.send("C")
+    elif ce == "E_WQ":
+            tester.interpreter.sendline(":w")
+            tester.interpreter.sendline(":q!")
     else:
         print("Unknown action or state", ce)
 
-def shutdown():
+def shutdown(tester):
     tester.interpreter.sendline(":w")
     tester.interpreter.sendline(":q!")
 
