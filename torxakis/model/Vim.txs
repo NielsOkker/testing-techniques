@@ -1,0 +1,67 @@
+{-
+Testing Techniques
+Assignment 4: Model-Based Testing with TorXakis
+===================================================
+Anass Fakir, Engin Kirmiziyüz, Okan Ok, Niels Okker
+-}
+
+{- States: Insert & Replace -}
+
+-- ----------------------------------------------------- --
+TYPEDEF  VimCommand
+    ::=
+          E_Esc
+        | E_i
+	| E_I
+	| E_a
+ENDDEF
+-- ----------------------------------------------------- --
+TYPEDEF  VimState
+    ::=
+          NormalMode
+        | InsertMode
+ENDDEF
+
+-- ---------------------------------------------------------- --
+
+
+PROCDEF  vimTransition  [ In :: VimCommand; Out :: VimState ]  ()
+    ::=
+                 In ?qop [[ isA(qop) ]]
+            >-> Out !InsertMode >-> vimTransition [In,Out] ()
+        
+ENDDEF
+
+
+-- ----------------------------------------------------- --
+
+CHANDEF  Chans  ::=  Stim :: VimCommand ;
+                     Resp :: VimState
+ENDDEF
+
+-- ----------------------------------------------------- --
+
+MODELDEF  Mod
+ ::=
+     CHAN IN    Stim
+     CHAN OUT   Resp
+
+     BEHAVIOUR
+                vimTransition [ Stim, Resp ] ()
+ENDDEF
+
+-- ----------------------------------------------------- --
+
+CNECTDEF  Sut
+ ::=
+     CLIENTSOCK
+
+     CHAN OUT  Stim          HOST "localhost"  PORT 10000
+     ENCODE    Stim ? qop     ->  ! toString(qop)
+
+     CHAN IN   Resp          HOST "localhost"  PORT 10000
+     DECODE    Resp ! fromString(s)    <-   ? s
+ENDDEF
+
+-- ----------------------------------------------------- --
+-- ----------------------------------------------------- --
