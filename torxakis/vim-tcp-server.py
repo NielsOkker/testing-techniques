@@ -38,7 +38,8 @@ def listen_for_connection():
                 print('received "%s"' % decoded_data)
 
                 handle_currentElement(decoded_data, tester)
-                connection.sendall(bytes("handled", 'utf-8'))
+                connection.sendall(bytes("V_Normal\n", 'utf-8'))
+                print('AQ')
                 
                 
         finally:

@@ -18,8 +18,8 @@ ENDDEF
 -- ----------------------------------------------------- --
 TYPEDEF  VimState
     ::=
-          NormalMode
-        | InsertMode
+          V_Normal
+        | V_Insert
 ENDDEF
 
 -- ---------------------------------------------------------- --
@@ -27,8 +27,11 @@ ENDDEF
 
 PROCDEF  vimTransition  [ In :: VimCommand; Out :: VimState ]  ()
     ::=
-                 In ?qop [[ isA(qop) ]]
-            >-> Out !InsertMode >-> vimTransition [In,Out] ()
+                 In ?qop [[ isE_a(qop) ]]
+            >-> Out !V_Normal >-> vimTransition [In,Out] ()
+	##
+		In ?qop [[ isE_i(qop) ]]
+	    >-> Out !V_Normal >-> vimTransition [In,Out] ()
         
 ENDDEF
 
