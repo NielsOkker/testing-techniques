@@ -32,6 +32,7 @@ def listen_for_connection():
             while True:
                 data = connection.recv(100)
                 decoded_data = bytes.decode(data)
+                decoded_data = decoded_data.rstrip()
                 print('received "%s"' % bytes.decode(data))
                 if data:
                     handle_currentElement(decoded_data, tester)
@@ -49,39 +50,39 @@ def listen_for_connection():
 
 def handle_currentElement(ce, tester):
     print("Handle", ce)
-    if ce == "v_Normal":
+    if ce == "V_Normal":
         tester.getScreenContent()
-    elif ce == "v_Insert":
+    elif ce == "V_Insert":
         tester.getScreenContent('INSERT')
-    elif ce == "v_Insertt":
+    elif ce == "V_Insertt":
         tester.getScreenContent('INSERTT')
-    elif ce == "e_Ctrl-C":
+    elif ce == "E_Ctrl-C":
         tester.interpreter.sendcontrol("c")
-    elif ce == "e_Esc":
+    elif ce == "E_Esc":
         tester.interpreter.sendcontrol("c")
-    elif ce == "e_i":
+    elif ce == "E_i":
         tester.interpreter.send("i")
-    elif ce == "e_I":
+    elif ce == "E_I":
         tester.interpreter.send("I")
-    elif ce == "e_a":
+    elif ce == "E_a":
         tester.interpreter.send("a")
-    elif ce == "e_A":
+    elif ce == "E_A":
         tester.interpreter.send("A")
-    elif ce == "e_o":
+    elif ce == "E_o":
         tester.interpreter.send("o")
-    elif ce == "e_O":
+    elif ce == "E_O":
         tester.interpreter.send("O")
-    elif ce == "e_gI":
+    elif ce == "E_gI":
         tester.interpreter.send("gI")
-    elif ce == "e_gi":
+    elif ce == "E_gi":
         tester.interpreter.send("gi")
-    elif ce == "e_s":        
+    elif ce == "E_s":        
         tester.interpreter.send("2s") 
-    elif ce == "e_S":        
+    elif ce == "E_S":        
         tester.interpreter.send("3S") 
-    elif ce == "e_cc":
+    elif ce == "E_cc":
         tester.interpreter.send("cc")
-    elif ce == "e_C":
+    elif ce == "E_C":
         tester.interpreter.send("C")
     else:
         print("Unknown action or state", ce)
