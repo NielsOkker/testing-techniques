@@ -54,11 +54,11 @@ class VimTester(object):
     def getScreenContent(self):
         waitingFor = ['INSERT', 'REPLACE', TIMEOUT, 'E325: ATTENTION', pexpect.EOF]
         Insert, Replace, Timeout, ALREADY_OPEN, EOF = range(len(waitingFor))
-        what = self.interpreter.expect(waitingFor, timeout=0.5)
+        what = self.interpreter.expect(waitingFor, timeout=0.1)
         if what == Insert:
             return "V_Insert"
         elif what == Replace:
-            return 'V_replace'
+            return 'V_Replace'
         elif what == ALREADY_OPEN:
             msg = "The Vim file is already openened, remove the swap file\n"
             raise Exception(msg)
@@ -68,7 +68,7 @@ class VimTester(object):
         what = self.interpreter.expect([r'(All|Bot|Top|\d+\%)+', TIMEOUT, 'E325: ATTENTION'], timeout=0.5)        
 
         if what == 0:
-            return 'V_normal'
+            return 'V_Normal'
         return 'V_Error'
 
     def _drop_output(self):

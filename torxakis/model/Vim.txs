@@ -11,10 +11,29 @@ Anass Fakir, Engin Kirmiziyüz, Okan Ok, Niels Okker
 TYPEDEF  VimCommand
     ::=
           E_Esc
+        | E_CtrlC 
         | E_i
-	| E_I
-	| E_a
+        | E_I
+        | E_a
+        | E_A
+        | E_o
+        | E_O 
+        | E_gI
+        | E_gi
+        | E_s
+--      | E_S 
+        | E_cc
+        | E_C 
 ENDDEF
+
+FUNCDEF isInsertOperator ( x :: VimCommand ) :: Bool ::= 
+    not (isReturnOperator(x))
+ENDDEF
+
+FUNCDEF isReturnOperator ( x :: VimCommand ) :: Bool ::= 
+    (x == E_Esc) \/ (x == E_CtrlC)
+ENDDEF
+
 -- ----------------------------------------------------- --
 TYPEDEF  VimState
     ::=
@@ -27,11 +46,11 @@ ENDDEF
 
 PROCDEF  vimTransition  [ In :: VimCommand; Out :: VimState ]  ()
     ::=
-                 In ?qop [[ isE_a(qop) ]]
-            >-> Out !V_Normal >-> vimTransition [In,Out] ()
-	##
-		In ?qop [[ isE_i(qop) ]]
-	    >-> Out !V_Normal >-> vimTransition [In,Out] ()
+            In ?x [[isInsertOperator(x)]] >->
+            Out !V_Insert >->
+            In ?y [[isReturnOperator(y)]] >->
+            Out !V_Normal >->
+            vimTransition [In, Out] ()
         
 ENDDEF
 

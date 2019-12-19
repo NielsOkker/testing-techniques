@@ -1,6 +1,7 @@
 import socket
 import sys
 import os 
+import time
 from vimtester import VimTester, TIMEOUT
 
 # TCP server setup
@@ -37,8 +38,10 @@ def listen_for_connection():
 
                 handle_currentElement(decoded_data, tester)
                 state = tester.getScreenContent()
-                connection.sendall(bytes(state + "\n", 'utf-8'))
-                
+                toSend = state + "\n"
+                print("sending", toSend)
+                connection.sendall(bytes(toSend, 'utf-8'))
+                print("sent", toSend)
                 
         finally:
             # Clean up the connection
@@ -48,7 +51,7 @@ def listen_for_connection():
 
 def handle_currentElement(ce, tester):
     print("Handle", ce)
-    if ce == "E_Ctrl-C":
+    if ce == "E_CtrlC":
         tester.interpreter.sendcontrol("c")
     elif ce == "E_Esc":
         tester.interpreter.sendcontrol("c")
@@ -86,4 +89,7 @@ def shutdown(tester):
     tester.interpreter.sendline(":w")
     tester.interpreter.sendline(":q!")
 
-listen_for_connection()
+try:
+    listen_for_connection()
+finally:
+    sock.close()
