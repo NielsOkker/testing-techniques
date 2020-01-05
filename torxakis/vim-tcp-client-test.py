@@ -11,19 +11,7 @@ print('connecting to %s port %s' % server_address)
 sock.connect(server_address)
 
 try:
-    # # Send data
-    # message = 'e_i'
-    # print('sending "%s"' % message)
-    # payload = bytes(message, 'utf-8')
-    # sock.sendall(payload)
-
-    # # Look for the response
-    # data = sock.recv(100)
-    # print('received "%s"' % data)
-
-
-    # send second data
-    message = 'E_i'
+    message = 'E_i;test123'
     print('sending "%s"' % message)
     payload = bytes(message, 'utf-8')
     sock.sendall(payload)
@@ -32,35 +20,7 @@ try:
     data = sock.recv(100)
     print('received "%s"' % data)
 
-
-    message = 'E_Esc'
-    print('sending "%s"' % message)
-    payload = bytes(message, 'utf-8')
-    sock.sendall(payload)
-
-    # Look for the response
-    data = sock.recv(100)
-    print('received "%s"' % data)
-
-    message = 'E_i'
-    print('sending "%s"' % message)
-    payload = bytes(message, 'utf-8')
-    sock.sendall(payload)
-
-    # Look for the response
-    data = sock.recv(100)
-    print('received "%s"' % data)
-
-    message = 'E_Esc'
-    print('sending "%s"' % message)
-    payload = bytes(message, 'utf-8')
-    sock.sendall(payload)
-
-    # Look for the response
-    data = sock.recv(100)
-    print('received "%s"' % data)
-
-    message = 'E_WQ'
+    message = 'E_O;lolo123'
     print('sending "%s"' % message)
     payload = bytes(message, 'utf-8')
     sock.sendall(payload)

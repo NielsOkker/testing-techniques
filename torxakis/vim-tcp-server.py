@@ -13,7 +13,7 @@ options = {}
 options['geometry'] = (25, 100)
 options['timeout'] = 2
 
-testFileName = './test.txt'
+testFileName = './tempfiles/test.txt'
 print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(1)
@@ -27,7 +27,6 @@ def listen_for_connection():
             tester = VimTester(r'(All|Bot|Top|\d+\%)+', r'', options, testFileName)
             print('connection from', client_address)
 
-            # Receive the data in small chunks and retransmit it
             while True:
                 data = connection.recv(100)
                 if not data:
@@ -36,12 +35,28 @@ def listen_for_connection():
                 decoded_data = decoded_data.strip("\n")
                 print('received "%s"' % decoded_data)
 
-                handle_currentElement(decoded_data, tester)
-                state = tester.getScreenContent()
-                toSend = state + "\n"
-                print("sending", toSend)
-                connection.sendall(bytes(toSend, 'utf-8'))
-                print("sent", toSend)
+                separated_data = decoded_data.split(";")
+                to_send = ""
+                if len(separated_data) == 2:
+                    cmd = separated_data[0]
+                    txt = separated_data[1]
+
+                    handle_currentElement(cmd, tester)
+                    state = tester.getScreenContent()
+
+                    handle_text(txt, tester)
+                    handle_currentElement("E_Esc", tester)
+                    handle_currentElement("E_W", tester)
+
+                    file_content = read_temp_file()
+                    print("file contains: %s" % file_content)
+                    clean_temp_file()
+                    to_send = state + ";" + file_content + "\n"
+                else:
+                    to_send = "error"
+                print("sending", to_send)
+                connection.sendall(bytes(to_send, 'utf-8'))
+                print("sent", to_send)
                 
         finally:
             # Clean up the connection
@@ -79,14 +94,37 @@ def handle_currentElement(ce, tester):
         tester.interpreter.send("cc")
     elif ce == "E_C":
         tester.interpreter.send("C")
+    elif ce == "E_W":
+        tester.interpreter.sendline(":w")
     elif ce == "E_WQ":
-            tester.interpreter.sendline(":w")
-            tester.interpreter.sendline(":q!")
+        tester.interpreter.sendline(":w")
+        time.sleep(0.1)
+        tester.interpreter.sendline(":q!")
     else:
         print("Unknown action or state", ce)
+    time.sleep(0.1)
+
+
+def handle_text(txt, tester):
+    if len(txt) != 0:
+        tester.interpreter.send(txt)
+        time.sleep(0.1)
+
+
+def read_temp_file():
+    f = open(testFileName, "r")
+    txt = f.read().strip("\n")
+    f.close()
+    return txt
+
+
+def clean_temp_file():
+    open(testFileName, 'w').close()
+
 
 def shutdown(tester):
     tester.interpreter.sendline(":w")
+    time.sleep(0.1)
     tester.interpreter.sendline(":q!")
 
 try:
