@@ -50,7 +50,7 @@ def listen_for_connection():
 
                     file_content = read_temp_file()
                     print("file contains: %s" % file_content)
-                    clean_temp_file()
+                    clean_temp_file(tester)
                     to_send = state + ";" + file_content + "\n"
                 else:
                     to_send = "error"
@@ -118,8 +118,13 @@ def read_temp_file():
     return txt
 
 
-def clean_temp_file():
-    open(testFileName, 'w').close()
+def clean_temp_file(tester):
+    tester.interpreter.sendcontrol("c")
+    time.sleep(0.1)
+    tester.interpreter.sendline(":gg")
+    time.sleep(0.1)
+    tester.interpreter.sendline("dG")
+    # open(testFileName, 'w').close()
 
 
 def shutdown(tester):
