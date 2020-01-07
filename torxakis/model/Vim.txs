@@ -10,9 +10,7 @@ Anass Fakir, Engin Kirmiziyüz, Okan Ok, Niels Okker
 -- ----------------------------------------------------- --
 TYPEDEF  VimCommand
     ::=
-          E_Esc
-        | E_CtrlC 
-        | E_i
+          E_i
         | E_I
         | E_a
         | E_A
@@ -26,12 +24,20 @@ TYPEDEF  VimCommand
         | E_C 
 ENDDEF
 
-FUNCDEF isInsertOperator ( x :: VimCommand ) :: Bool ::= 
-    not (isReturnOperator(x))
+TYPEDEF Komando
+    ::=
+          Insert {
+              mode :: VimCommand
+            ; arg :: String
+          }
 ENDDEF
 
-FUNCDEF isReturnOperator ( x :: VimCommand ) :: Bool ::= 
-    (x == E_Esc) \/ (x == E_CtrlC)
+TYPEDEF Output
+    ::=
+          Output {
+              state :: VimState
+            ; arg :: String
+          }
 ENDDEF
 
 -- ----------------------------------------------------- --
@@ -43,22 +49,20 @@ ENDDEF
 
 -- ---------------------------------------------------------- --
 
-
-PROCDEF  vimTransition  [ In :: VimCommand; Out :: VimState ]  ()
+PROCDEF komandoTrans [ In :: Komando; Out :: Output]  ()
     ::=
-            In ?x [[isInsertOperator(x)]] >->
-            Out !V_Insert >->
-            In ?y [[isReturnOperator(y)]] >->
-            Out !V_Normal >->
-            vimTransition [In, Out] ()
-        
+            In ? x >->
+            Out ! Output(V_Insert, arg(x))
 ENDDEF
+
+
+
 
 
 -- ----------------------------------------------------- --
 
-CHANDEF  Chans  ::=  Stim :: VimCommand ;
-                     Resp :: VimState
+CHANDEF  Chans  ::=  Stim :: Komando ;
+                     Resp :: Output
 ENDDEF
 
 -- ----------------------------------------------------- --
@@ -69,7 +73,7 @@ MODELDEF  Mod
      CHAN OUT   Resp
 
      BEHAVIOUR
-                vimTransition [ Stim, Resp ] ()
+                komandoTrans [ Stim, Resp ] ()
 ENDDEF
 
 -- ----------------------------------------------------- --
@@ -84,6 +88,8 @@ CNECTDEF  Sut
      CHAN IN   Resp          HOST "localhost"  PORT 10000
      DECODE    Resp ! fromString(s)    <-   ? s
 ENDDEF
+
+
 
 -- ----------------------------------------------------- --
 -- ----------------------------------------------------- --
