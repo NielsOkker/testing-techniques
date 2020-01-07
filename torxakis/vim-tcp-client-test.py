@@ -11,7 +11,7 @@ print('connecting to %s port %s' % server_address)
 sock.connect(server_address)
 
 try:
-    message = 'E_i;test123'
+    message = 'Insert(E_i,"test123")'
     print('sending "%s"' % message)
     payload = bytes(message, 'utf-8')
     sock.sendall(payload)
@@ -20,14 +20,14 @@ try:
     data = sock.recv(100)
     print('received "%s"' % data)
 
-    message = 'E_O;lolo123'
-    print('sending "%s"' % message)
-    payload = bytes(message, 'utf-8')
-    sock.sendall(payload)
-
-    # Look for the response
-    data = sock.recv(100)
-    print('received "%s"' % data)
+    # message = 'insert(E_O,"lolo123")'
+    # print('sending "%s"' % message)
+    # payload = bytes(message, 'utf-8')
+    # sock.sendall(payload)
+    #
+    # # Look for the response
+    # data = sock.recv(100)
+    # print('received "%s"' % data)
 
 
 finally:

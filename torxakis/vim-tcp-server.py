@@ -1,7 +1,8 @@
 import socket
 import sys
-import os 
+import os
 import time
+import re
 from vimtester import VimTester, TIMEOUT
 
 # TCP server setup
@@ -18,6 +19,7 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 sock.listen(1)
 
+
 def listen_for_connection():
     while True:
         # Wait for a connection
@@ -33,13 +35,18 @@ def listen_for_connection():
                     break
                 decoded_data = bytes.decode(data)
                 decoded_data = decoded_data.strip("\n")
+                decoded_data = decoded_data.replace('(', ',')
+                decoded_data = decoded_data.replace(')', ',')
+                decoded_data = decoded_data.replace('"', ',')
+                # decoded_data = decoded_data.replace('', ',')
                 print('received "%s"' % decoded_data)
 
-                separated_data = decoded_data.split(";")
+                separated_data = decoded_data.split(',')
+                print(separated_data)
                 to_send = ""
-                if len(separated_data) == 2:
-                    cmd = separated_data[0]
-                    txt = separated_data[1]
+                if len(separated_data) == 6:
+                    cmd = separated_data[1]
+                    txt = separated_data[3]
 
                     handle_currentElement(cmd, tester)
                     state = tester.getScreenContent()
@@ -51,13 +58,13 @@ def listen_for_connection():
                     file_content = read_temp_file()
                     print("file contains: %s" % file_content)
                     clean_temp_file(tester)
-                    to_send = state + ";" + file_content + "\n"
+                    to_send = "Output(" + state + ',"' + file_content + '")\n'
                 else:
                     to_send = "error"
                 print("sending", to_send)
                 connection.sendall(bytes(to_send, 'utf-8'))
                 print("sent", to_send)
-                
+
         finally:
             # Clean up the connection
             connection.close()
@@ -86,10 +93,10 @@ def handle_currentElement(ce, tester):
         tester.interpreter.send("gI")
     elif ce == "E_gi":
         tester.interpreter.send("gi")
-    elif ce == "E_s":        
-        tester.interpreter.send("2s") 
-    elif ce == "E_S":        
-        tester.interpreter.send("3S") 
+    elif ce == "E_s":
+        tester.interpreter.send("2s")
+    elif ce == "E_S":
+        tester.interpreter.send("3S")
     elif ce == "E_cc":
         tester.interpreter.send("cc")
     elif ce == "E_C":
@@ -131,6 +138,7 @@ def shutdown(tester):
     tester.interpreter.sendline(":w")
     time.sleep(0.1)
     tester.interpreter.sendline(":q!")
+
 
 try:
     listen_for_connection()
