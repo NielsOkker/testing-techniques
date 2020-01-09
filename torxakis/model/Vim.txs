@@ -51,7 +51,7 @@ ENDDEF
 
 PROCDEF komandoTrans [ In :: Komando; Out :: Output]  ()
     ::=
-            In ? x [[ strinre(arg(x), REGEX('[A-Z][a-z][0-9]+')) ]] >->
+            In ? x [[ strinre(arg(x), REGEX('[a-zA-Z0-9]*')) ]] >->
             Out ! Output(V_Insert, arg(x))
             >->
             komandoTrans [In, Out] ()
